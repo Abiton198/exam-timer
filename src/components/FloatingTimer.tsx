@@ -83,6 +83,26 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
     barColor = "bg-red-500";
   }
 
+  // ✅ When time ends, show completion screen
+  if (totalTimeLeft === 0) {
+    return (
+      <div className="w-full max-w-3xl mx-auto bg-slate-900/95 backdrop-blur-lg border border-white/40 rounded-3xl shadow-3xl p-12 text-center">
+        <h2 className="text-6xl font-extrabold text-red-500 mb-6">
+          ⏰ Time Ended
+        </h2>
+        <p className="text-3xl text-white mb-4">All Questions Answered</p>
+        <p className="text-2xl text-green-400 mb-8">100% Complete 🎉</p>
+        <button
+          onClick={onReset}
+          className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-lg"
+        >
+          Restart Timer
+        </button>
+      </div>
+    );
+  }
+
+  // Normal timer UI
   return (
     <div className="bg-slate-900/95 backdrop-blur-lg border border-white/40 rounded-3xl shadow-3xl p-12 w-[90%] max-w-6xl mx-auto">
       {/* Header */}
