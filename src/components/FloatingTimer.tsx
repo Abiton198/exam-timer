@@ -49,6 +49,7 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
     return () => clearInterval(interval);
   }, [isRunning, totalTimeLeft, currentQuestion, questionCount, timePerQuestion]);
 
+  // Format for per-question timer (mm:ss)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -57,23 +58,44 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
       .padStart(2, "0")}`;
   };
 
+  // Format for total time (hrs + mins)
+  const formatTimeHM = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+  };
+
+  // Progress calculations
   const questionProgress = ((currentQuestion - 1) / questionCount) * 100;
   const totalProgress =
     ((totalMinutes * 60 - totalTimeLeft) / (totalMinutes * 60)) * 100;
 
+  // Color coding based on total time left %
+  const remainingPercent = (totalTimeLeft / (totalMinutes * 60)) * 100;
+  let timeColor = "text-green-400";
+  let barColor = "bg-green-400";
+
+  if (remainingPercent <= 30 && remainingPercent > 10) {
+    timeColor = "text-yellow-400";
+    barColor = "bg-yellow-400";
+  } else if (remainingPercent <= 10) {
+    timeColor = "text-red-500";
+    barColor = "bg-red-500";
+  }
+
   return (
-    <div className="bg-slate-900/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-6 min-w-[320px]">
+    <div className="bg-slate-900/95 backdrop-blur-lg border border-white/40 rounded-3xl shadow-3xl p-12 w-[90%] max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-white">Question Timer</h3>
-        <div className="flex gap-2">
+      <div className="flex justify-between items-center mb-10">
+        <h3 className="text-4xl font-bold text-white">⏳ Exam Timer</h3>
+        <div className="flex gap-4">
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-4 hover:bg-white/10 rounded-xl transition-colors"
           >
             {isRunning ? (
               <svg
-                className="w-4 h-4 text-white"
+                className="w-10 h-10 text-white"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -85,7 +107,7 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
               </svg>
             ) : (
               <svg
-                className="w-4 h-4 text-white"
+                className="w-10 h-10 text-white"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -99,10 +121,10 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
           </button>
           <button
             onClick={onReset}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-4 hover:bg-white/10 rounded-xl transition-colors"
           >
             <svg
-              className="w-4 h-4 text-white"
+              className="w-10 h-10 text-white"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -117,16 +139,16 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
       </div>
 
       {/* Current Question Timer */}
-      <div className="text-center mb-4">
-        <div className="text-4xl font-bold text-green-400 mb-2">
+      <div className="text-center mb-12">
+        <div className="text-8xl font-extrabold text-green-400 mb-4">
           {formatTime(questionTimeLeft)}
         </div>
-        <div className="text-sm text-white/70">
+        <div className="text-2xl text-white/80 mb-4">
           Question {currentQuestion} of {questionCount}
         </div>
-        <div className="w-full bg-slate-700 rounded-full h-2 mt-2">
+        <div className="w-full bg-slate-700 rounded-full h-4">
           <div
-            className="bg-green-400 h-2 rounded-full transition-all duration-1000"
+            className="bg-green-400 h-4 rounded-full transition-all duration-1000"
             style={{
               width: `${
                 ((timePerQuestion - questionTimeLeft) / timePerQuestion) * 100
@@ -137,21 +159,21 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
       </div>
 
       {/* Total Time */}
-      <div className="text-center mb-4 p-4 bg-slate-800/50 rounded-lg">
-        <div className="text-2xl font-semibold text-blue-400 mb-1">
-          {formatTime(totalTimeLeft)}
+      <div className="text-center mb-10 p-8 bg-slate-800/60 rounded-2xl">
+        <div className={`text-7xl font-extrabold mb-3 ${timeColor}`}>
+          {formatTimeHM(totalTimeLeft)}
         </div>
-        <div className="text-xs text-white/60">Total Time Remaining</div>
-        <div className="w-full bg-slate-700 rounded-full h-1.5 mt-2">
+        <div className="text-xl text-white/70 mb-4">Total Time Remaining</div>
+        <div className="w-full bg-slate-700 rounded-full h-3">
           <div
-            className="bg-blue-400 h-1.5 rounded-full transition-all duration-1000"
+            className={`${barColor} h-3 rounded-full transition-all duration-1000`}
             style={{ width: `${totalProgress}%` }}
           />
         </div>
       </div>
 
       {/* Progress Info */}
-      <div className="text-xs text-white/60 text-center">
+      <div className="text-xl text-white/70 text-center">
         {Math.round(questionProgress)}% Complete •{" "}
         {questionCount - currentQuestion + 1} Questions Left
       </div>
